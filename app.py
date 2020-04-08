@@ -29,7 +29,7 @@ class TodoList(db.Model):
     todos = db.relationship('Todo', backref='list', lazy=True, cascade='all, delete-orphan')
 
 
-db.create_all()
+# We don't need to use db.create_all() since flask db init and  flask db migrate creates tables automatically
 
 
 @app.route('/')
