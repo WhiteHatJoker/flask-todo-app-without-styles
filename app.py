@@ -16,7 +16,7 @@ class Todo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(), nullable=False)
     completed = db.Column(db.Boolean, nullable=False, default=False)
-    list_id = db.Column(db.Integer, db.ForeignKey('todolists.id'), nullable=False)
+    list_id = db.Column(db.Integer, db.ForeignKey('todolists.id', ondelete='cascade'), nullable=False)
 
     def __repr__(self):
         return f'<Todo {self.id} {self.description}>'
@@ -28,7 +28,8 @@ class TodoList(db.Model):
     name = db.Column(db.String(), nullable=False)
     todos = db.relationship('Todo', backref='list', lazy=True, cascade='all, delete-orphan')
 
-# We don't need to use db.create_all() since flask db init and  flask db migrate creates tables automatically
+
+db.create_all()
 
 
 @app.route('/')
