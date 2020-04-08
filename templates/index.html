@@ -31,8 +31,8 @@
     </head>
     <body>
         <div class="lists-wrapper">
-            <form id="listform">
-                <input type="text" id="listname" name="listname" />
+            <form id="listform" method="post" action="/todolists/create">
+                <input type="text" id="list_name" name="list_name" />
                 <input type="submit" value="Create List" />
             </form>
             <ul id="lists">
@@ -63,31 +63,6 @@
         </div>
 
         <script>
-            document.getElementById('listform').onsubmit = function(e) {
-                e.preventDefault();
-                fetch('/todolists/create', {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        'name': document.getElementById('listname').value
-                    }),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(function(response) {
-                    return response.json();
-                })
-                .then(function(jsonResponse) {
-                    console.log(jsonResponse);
-                    const liItem = document.createElement('li');
-                    liItem.innerHTML = jsonResponse['name'];
-                    document.getElementById('lists').appendChild(liItem);
-                })
-                .catch(function() {
-                    document.getElementById('error').className = '';
-                })
-            }
-
             const listDeleteBtns = document.querySelectorAll('.list-delete-button');
             listDeleteBtns.forEach(function(btn) {
                 btn.onclick = function(e) {
@@ -128,10 +103,10 @@
                     return response.json();
                 })
                 .then(function(jsonResponse) {
-                    console.log(jsonResponse);
                     const liItem = document.createElement('li');
                     liItem.innerHTML = jsonResponse['description'];
                     document.getElementById('todos').appendChild(liItem);
+                    location.reload();
                 })
                 .catch(function() {
                     document.getElementById('error').className = '';

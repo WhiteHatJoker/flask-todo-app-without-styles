@@ -95,24 +95,17 @@ def delete_todo(todo_id):
 
 @app.route('/todolists/create', methods=['POST'])
 def create_todolist():
-    error = False
-    body = {}
     try:
-        name = request.get_json()['name']
+        name = request.form.get('list_name', 'Unnamed')
         todolist = TodoList(name=name)
         db.session.add(todolist)
         db.session.commit()
-        body['name'] = todolist.name
+        id = todolist.id
     except:
-        error = True
         db.session.rollback()
-        print(sys.exc_info())
     finally:
         db.session.close()
-    if error:
-        abort(400)
-    else:
-        return jsonify(body)
+        return redirect(url_for('get_list_todos', list_id=id))
 
 
 @app.route('/lists/<list_id>', methods=['DELETE'])
