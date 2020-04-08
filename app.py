@@ -69,7 +69,6 @@ def create_todo():
 def set_completed_todo(todo_id):
     try:
         completed = request.get_json()['completed']
-        active_list_id = request.get_json()['active_list']
         todo = Todo.query.get(todo_id)
         todo.completed = completed
         db.session.commit()
@@ -82,14 +81,16 @@ def set_completed_todo(todo_id):
 
 @app.route('/todos/<todo_id>', methods=['DELETE'])
 def delete_todo(todo_id):
+    success = True
     try:
         Todo.query.filter_by(id=todo_id).delete()
         db.session.commit()
     except:
         db.session.rollback()
+        success = False
     finally:
         db.session.close()
-    return jsonify({'success': True})
+    return jsonify({'success': success})
 
 
 @app.route('/todolists/create', methods=['POST'])
@@ -116,14 +117,16 @@ def create_todolist():
 
 @app.route('/lists/<list_id>', methods=['DELETE'])
 def delete_list(list_id):
+    success = True
     try:
         TodoList.query.filter_by(id=list_id).delete()
         db.session.commit()
     except:
         db.session.rollback()
+        success = False
     finally:
         db.session.close()
-    return jsonify({'success': True})
+    return jsonify({'success': success})
 
 
 if __name__ == '__main__':
