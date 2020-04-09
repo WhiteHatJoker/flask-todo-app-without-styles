@@ -26,6 +26,7 @@ class TodoList(db.Model):
     __tablename__ = 'todolists'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(), nullable=False)
+    completed = db.Column(db.Boolean, nullable=False, default=False)
     todos = db.relationship('Todo', backref='list', lazy=True, cascade='all, delete-orphan')
 
 
@@ -39,7 +40,7 @@ def index():
 
 @app.route('/lists/<list_id>')
 def get_list_todos(list_id):
-    return render_template('index.html', lists=TodoList.query.all(), active_list=TodoList.query.get(list_id), todos=Todo.query.filter_by(list_id=list_id).order_by('id').all())
+    return render_template('index.html', lists=TodoList.query.order_by('id').all(), active_list=TodoList.query.get(list_id), todos=Todo.query.filter_by(list_id=list_id).order_by('id').all())
 
 
 @app.route('/todos/create', methods=['POST'])
@@ -49,7 +50,7 @@ def create_todo():
     try:
         list_id = request.get_json()['active_list']
         description = request.get_json()['description']
-        todo = Todo(description=description,list_id=list_id)
+        todo = Todo(description=description, list_id=list_id)
         db.session.add(todo)
         db.session.commit()
         body['description'] = todo.description
@@ -93,7 +94,7 @@ def delete_todo(todo_id):
     return jsonify({'success': success})
 
 
-@app.route('/todolists/create', methods=['POST'])
+@app.route('/lists/create', methods=['POST'])
 def create_todolist():
     try:
         name = request.form.get('list_name', 'Unnamed')
@@ -106,6 +107,23 @@ def create_todolist():
     finally:
         db.session.close()
         return redirect(url_for('get_list_todos', list_id=id))
+
+
+@app.route('/lists/<list_id>/set-completed', methods=['POST'])
+def set_completed_list(list_id):
+    try:
+        completed = request.get_json()['completed']
+        list = TodoList.query.get(list_id)
+        list.completed = completed
+        todos = Todo.query.filter_by(list_id=list_id).all()
+        for todo in todos:
+            todo.completed = completed
+        db.session.commit()
+    except:
+        db.session.rollback()
+    finally:
+        db.session.close()
+    return jsonify({'success': True})
 
 
 @app.route('/lists/<list_id>', methods=['DELETE'])
